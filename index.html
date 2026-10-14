@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriFlow — Инженерный аудит и профессиональное тестирование ПО</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    /* Handlers defined in head to ensure availability when image loads or completes from cache */
+    function onImageLoaded() {
+      var img = document.getElementById('specialist-img');
+      var skeleton = document.getElementById('photo-skeleton');
+      if (img) img.classList.add('loaded');
+      if (skeleton) skeleton.style.display = 'none';
+    }
+
+    function onImageError(imgElement) {
+      if (!imgElement) return;
+      imgElement.onerror = null;
+      imgElement.src = 'https://placehold.co/1200x900/0e121b/38bdf8?text=QA+Engineer+Online';
+      imgElement.classList.add('loaded');
+      var skeleton = document.getElementById('photo-skeleton');
+      if (skeleton) skeleton.style.display = 'none';
+    }
+  </script>
+
+  <!-- SEO JSON-LD Microdata for Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Как быстро вы можете подключиться к проекту?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "В среднем онбординг занимает 48 часов с момента подписания договора. Мы выделяем команду, настраиваем VPN/доступы и сразу погружаемся в вашу архитектуру и беклог."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Как вы обеспечиваете безопасность нашего кода и данных?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Работа строго по NDA. Используем изолированные тестовые среды, не выкачиваем чувствительные данные пользователей на свои локальные машины и применяем стандарты OWASP для проверки уязвимостей."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Вы используете свой стек или можете писать тесты на нашем?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Мы адаптивны. Если у вас уже есть база на Java/Selenide или Python/PyTest — мы продолжим её развивать. Если автоматизации еще нет, мы предложим оптимальный стек под вашу архитектуру (например, Playwright/TypeScript для веба)."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Что произойдет, если критический баг всё же уйдет в продакшен?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Мы выстраиваем процесс Quality Gates, при котором релиз блокируется автоматически при наличии дефектов. Если инцидент всё же случился — мы бесплатно локализуем проблему, предоставляем root-cause analysis (почему это произошло) и пишем автотест, чтобы ситуация не повторилась."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Как рассчитывается стоимость услуг?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Бюджет зависит от длительности спринтов и необходимого покрытия (Manual, Auto, Security). Вы можете воспользоваться калькулятором на сайте или запросить бесплатный экспресс-аудит, чтобы мы оценили объем."
+      }
+    }]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg-main: #07090e;
+      --bg-surface: #0e121b;
+      --bg-surface-elevated: #151b27;
+      --bg-glass: rgba(14, 18, 27, 0.72);
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(56, 189, 248, 0.28);
+      --border-accent: rgba(59, 130, 246, 0.5);
+
+      --color-text-primary: #f1f5f9;
+      --color-text-secondary: #94a3b8;
+      --color-text-muted: #64748b;
+
+      --accent-blue: #2563eb;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-glow: rgba(37, 99, 235, 0.45);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-pill: 9999px;
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Interactive Live Background Canvas */
+    #tech-bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ambient-glow-top {
+      position: fixed;
+      top: -20%;
+      left: 20%;
+      width: 60vw;
+      height: 50vh;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(6, 182, 212, 0.05) 50%, transparent 80%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .header {
+      width: 100%;
+      height: 76px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(7, 9, 14, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--color-text-primary);
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-typewriter-text {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-sans);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-icon-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-badge-net {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .status-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    .hero-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 3.5rem 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-pill);
+      color: #60a5fa;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 3.8vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .title-gradient-accent {
+      background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #2dd4bf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      font-size: clamp(1rem, 1.2vw, 1.125rem);
+      color: var(--color-text-secondary);
+      line-height: 1.65;
+      max-width: 580px;
+    }
+
+    .cta-cluster {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.9rem 1.7rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 10px 25px -5px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #3b82f6, var(--accent-blue));
+      box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.65);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: rgba(14, 18, 27, 0.85);
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #e2e8f0;
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-surface-elevated);
+      border-color: var(--accent-cyan);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -6px rgba(6, 182, 212, 0.25);
+    }
+
+    .btn-outline:active {
+      transform: translateY(0);
+    }
+
+    /* Micro-metrics below CTA */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 2.2rem;
+      padding-top: 1.25rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .metric-item-val {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .metric-item-lbl {
+      font-size: 0.775rem;
+      color: var(--color-text-muted);
+      margin-top: 3px;
+    }
+
+    .hero-media-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .media-card {
+      position: relative;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 10px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
+                  0 0 40px -10px rgba(37, 99, 235, 0.15);
+      transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+    }
+
+    .media-card:hover {
+      border-color: var(--border-highlight);
+    }
+
+    /* Zero CLS photo container */
+    .photo-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: calc(var(--radius-lg) - 4px);
+      overflow: hidden;
+      background: linear-gradient(135deg, #0e131f 0%, #171f33 100%);
+    }
+
+    .qa-specialist-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+      transition: opacity 0.4s ease, transform 0.6s ease;
+      opacity: 0;
+    }
+
+    .qa-specialist-img.loaded {
+      opacity: 1;
+    }
+
+    .media-card:hover .qa-specialist-img.loaded {
+      transform: scale(1.03);
+    }
+
+    /* Skeleton loader while fetching image */
+    .skeleton-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.8s infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Floating tech telemetry tags on the photo */
+    .hud-tag-top {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: rgba(7, 10, 16, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .hud-chip-bottom {
+      position: absolute;
+      bottom: -16px;
+      left: 18px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+      z-index: 5;
+    }
+
+    .hud-icon-emerald {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-emerald);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hud-info-caption {
+      font-size: 0.725rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+    }
+
+    .hud-info-val {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.5rem 0;
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      background: var(--bg-main);
+    }
+
+    .dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 5, 10, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-fast), visibility var(--transition-fast);
+    }
+
+    .dialog-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .dialog-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 50px -10px rgba(37, 99, 235, 0.2);
+      transform: scale(0.96) translateY(12px);
+      transition: transform var(--transition-fast);
+      position: relative;
+    }
+
+    .dialog-backdrop.active .dialog-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    .dialog-header {
+      padding: 1.5rem 1.75rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .dialog-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .dialog-subtext {
+      font-size: 0.825rem;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    .dialog-close-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .dialog-close-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .dialog-body {
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.775rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .form-input, .form-select {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      color: #fff;
+      outline: none;
+      transition: border-color var(--transition-fast);
+      width: 100%;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    /* Calculator Specific Controls */
+    .calc-box {
+      background: rgba(21, 27, 39, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .slider-val-badge {
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .calc-range-input {
+      width: 100%;
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .checkbox-chip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .checkbox-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--transition-fast);
+    }
+
+    .checkbox-chip:has(input:checked) {
+      border-color: var(--accent-cyan);
+      color: #fff;
+      background: rgba(6, 182, 212, 0.1);
+    }
+
+    .calc-result-summary {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.1));
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .calc-price-lbl {
+      font-size: 0.775rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+
+    .calc-price-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+    }
+
+    .toast-msg {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent-emerald);
+      color: #a7f3d0;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      display: none;
+      text-align: center;
+    }
+
+    /* =====================================================================
+       2. CAROUSEL SECTION & DASHBOARD CARDS STYLING
+       ===================================================================== */
+    .section-metrics-carousel {
+      position: relative;
+      padding: 5rem 0 6rem;
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, rgba(7, 9, 14, 0.4) 0%, rgba(14, 18, 27, 0.85) 100%);
+      overflow: hidden;
+    }
+
+    .carousel-header-wrap {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2.75rem;
+      flex-wrap: wrap;
+    }
+
+    .carousel-title-group {
+      max-width: 680px;
+    }
+
+    .section-subtitle {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 0.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      color: #fff;
+    }
+
+    .section-title-highlight {
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-lead {
+      color: var(--color-text-secondary);
+      font-size: 0.975rem;
+      margin-top: 0.75rem;
+      line-height: 1.6;
+    }
+
+    /* Carousel Nav Controls */
+    .carousel-nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .carousel-page-indicator {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .carousel-page-indicator strong {
+      color: #38bdf8;
+      font-size: 1.05rem;
+    }
+
+    .nav-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .carousel-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--color-text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+
+    .carousel-btn:hover {
+      border-color: var(--accent-cyan);
+      background: var(--bg-surface-elevated);
+      color: #38bdf8;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Carousel Viewport & Slider Track */
+    .carousel-viewport {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: pan-y;
+      border-radius: var(--radius-lg);
+    }
+
+    .carousel-viewport:active {
+      cursor: grabbing;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 1.75rem;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      padding: 6px 4px 18px;
+      backface-visibility: hidden;
+      perspective: 1200px;
+    }
+
+    /* Individual Dashboard Cards */
+    .dashboard-card {
+      flex: 0 0 calc(50% - 0.875rem);
+      min-width: 330px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.65);
+      transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+      user-select: none;
+    }
+
+    .dashboard-card:hover {
+      border-color: var(--border-highlight);
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px -8px rgba(56, 189, 248, 0.12);
+    }
+
+    .card-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-idx-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.775rem;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+    }
+
+    .card-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.725rem;
+      font-family: var(--font-mono);
+      color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+    }
+
+    .card-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 6px var(--accent-emerald);
+      animation: pulse 1.8s infinite;
+    }
+
+    .card-heading {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-caption {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
+      min-height: 40px;
+    }
+
+    /* Mockup Surface Area Inside Card */
+    .mockup-surface {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      position: relative;
+    }
+
+    /* CARD 1: Pyramid & Coverage */
+    .pyramid-layer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(7, 9, 14, 0.6);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .pyramid-layer:hover, .pyramid-layer.active {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.08);
+      transform: translateX(3px);
+    }
+
+    .layer-title-text {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .layer-pct {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .coverage-meter-bar {
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .coverage-meter-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      transition: width 0.6s ease;
+    }
+
+    .pyramid-quick-meta {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px dashed var(--border-subtle);
+    }
+
+    /* CARD 2: Bug Tracking Heatmap */
+    .defect-filter-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .defect-chip {
+      font-size: 0.725rem;
+      font-family: var(--font-mono);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(7, 9, 14, 0.7);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .defect-chip.active {
+      border-color: #f87171;
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .bug-log-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(7, 9, 14, 0.55);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+
+    .bug-log-row:hover {
+      border-color: rgba(248, 113, 113, 0.4);
+    }
+
+    .bug-severity-pill {
+      font-size: 0.675rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 3px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .bug-severity-pill.blocker {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .bug-severity-pill.critical {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .bug-title-line {
+      font-size: 0.8125rem;
+      color: #f1f5f9;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .bug-meta-line {
+      font-size: 0.725rem;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      margin-top: 3px;
+    }
+
+    /* CARD 3: Highload Simulator */
+    .load-slider-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .load-graph-preview {
+      height: 68px;
+      width: 100%;
+      background: rgba(7, 9, 14, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .load-bar {
+      flex: 1;
+      background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 2px 2px 0 0;
+      transition: height 0.25s ease, background 0.25s ease;
+      min-height: 4px;
+    }
+
+    .load-bar.warning {
+      background: linear-gradient(180deg, #f59e0b, #ef4444);
+    }
+
+    .load-stat-readout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(7, 9, 14, 0.5);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+    }
+
+    .load-stat-item {
+      font-family: var(--font-mono);
+    }
+
+    .load-stat-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .load-stat-lbl {
+      font-size: 0.6875rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* CARD 4: Quality Gate Pipeline */
+    .pipeline-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pipeline-step-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: rgba(7, 9, 14, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.7875rem;
+      color: var(--color-text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .pipeline-step-item.passed {
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #e2e8f0;
+    }
+
+    .pipeline-tag-status {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .gate-action-btn {
+      width: 100%;
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid var(--accent-blue);
+      border-radius: var(--radius-sm);
+      color: #60a5fa;
+      padding: 8px;
+      font-size: 0.7875rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .gate-action-btn:hover {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    /* Carousel Progress Line */
+    .carousel-progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      margin-top: 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .carousel-progress-thumb {
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: 2px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.4s ease;
+    }
+
+    /* =====================================================================
+       3. TEAM VIDEO SECTION STYLING
+       ===================================================================== */
+    .section-team-video {
+      position: relative;
+      padding: 6rem 0 7rem;
+      background: var(--bg-main);
+    }
+
+    .video-header-wrap {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .video-player-card {
+      position: relative;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      padding: 10px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
+                  0 0 50px -15px rgba(56, 189, 248, 0.15);
+      max-width: 1024px;
+      margin: 0 auto;
+      transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+    }
+
+    .video-player-card:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9),
+                  0 0 60px -10px rgba(6, 182, 212, 0.25);
+    }
+
+    .video-ratio-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      border-radius: calc(var(--radius-lg) - 4px);
+      overflow: hidden;
+      background: #000;
+    }
+
+    .video-ratio-wrapper iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      border: none;
+    }
+
+    /* =====================================================================
+       4. FAQ SECTION STYLING
+       ===================================================================== */
+    .section-faq {
+      position: relative;
+      padding: 6rem 0 4rem; /* Reduced bottom padding to flow into CTA seamlessly */
+      background: linear-gradient(180deg, var(--bg-main) 0%, rgba(14, 18, 27, 0.4) 100%);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .faq-header-wrap {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .faq-accordion-list {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-smooth);
+    }
+
+    .faq-item:hover {
+      border-color: var(--border-highlight);
+    }
+
+    .faq-item.active {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.15);
+      background: rgba(14, 18, 27, 0.95);
+    }
+
+    .faq-question-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.5rem 1.75rem;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      outline: none;
+      border-radius: var(--radius-md);
+      transition: color var(--transition-fast);
+    }
+
+    .faq-question-btn:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--accent-cyan);
+    }
+
+    .faq-item.active .faq-question-btn {
+      color: var(--accent-cyan);
+    }
+
+    .faq-icon-chevron {
+      flex-shrink: 0;
+      color: var(--color-text-secondary);
+      transition: transform var(--transition-smooth);
+    }
+
+    .faq-item.active .faq-icon-chevron {
+      transform: rotate(180deg);
+      color: var(--accent-cyan);
+    }
+
+    .faq-answer-grid-wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows var(--transition-smooth);
+    }
+
+    .faq-item.active .faq-answer-grid-wrapper {
+      grid-template-rows: 1fr;
+    }
+
+    .faq-answer-overflow-box {
+      overflow: hidden;
+    }
+
+    .faq-answer-content {
+      padding: 0 1.75rem 1.75rem;
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* =====================================================================
+       5. FINAL CTA SECTION STYLING
+       ===================================================================== */
+    .section-final-cta {
+      position: relative;
+      padding: 2rem 0 6rem;
+      background: linear-gradient(180deg, rgba(14, 18, 27, 0.4) 0%, var(--bg-main) 100%);
+    }
+
+    .cta-banner-card {
+      position: relative;
+      background: rgba(14, 18, 27, 0.6);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      padding: 4rem 2rem;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: center;
+    }
+
+    .cta-banner-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .cta-banner-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .cta-banner-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-micro-trust {
+      margin-top: 1.5rem;
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      
+      .hero-content {
+        max-width: 720px;
+      }
+
+      .hero-media-wrap {
+        max-width: 580px;
+        margin: 0 auto;
+      }
+
+      .photo-viewport {
+        aspect-ratio: 16 / 10;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-section {
+        padding: 2rem 0 3.5rem;
+      }
+
+      .cta-cluster {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .metrics-bar {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+
+      .hud-chip-bottom {
+        bottom: -12px;
+        left: 10px;
+        right: 10px;
+        padding: 10px 14px;
+      }
+
+      .checkbox-chip-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-card {
+        flex: 0 0 calc(100% - 10px);
+        min-width: 280px;
+        padding: 1.25rem;
+      }
+
+      .carousel-header-wrap {
+        margin-bottom: 1.75rem;
+      }
+
+      .cta-banner-card {
+        padding: 2.5rem 1.25rem;
+      }
+      .cta-banner-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .cta-banner-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Live Animated Canvas Background (Neural Mesh / Tech Grid) -->
+  <canvas id="tech-bg-canvas"></canvas>
+  <div class="ambient-glow-top"></div>
+
+  <!-- Main Document Container -->
+  <div class="page-wrap">
+    
+    <header class="header">
+      <div class="container header-content">
+        <a href="#" class="brand-logo" aria-label="VeriFlow Homepage">
+          <div class="brand-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="brand-typewriter-text" id="brand-typewriter"></span>
+        </a>
+
+        <div class="brand-badge-net">
+          <span class="status-pulse-dot"></span>
+          <span>Эксперты на связи • Готовы к проекту</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Left Column: Content & Dual CTA -->
+          <div class="hero-content">
+            
+            <div class="pill-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <span>Инженерный QA: Manual & Test Automation</span>
+            </div>
+
+            <h1 class="hero-title">
+              Профессиональное тестирование продуктов с <span class="title-gradient-accent">нулевой толерантностью</span> к багам
+            </h1>
+
+            <p class="hero-description">
+              Устраняем критические дефекты до релиза, строим сквозной пайплайн автотестов в CI/CD и гарантируем отказоустойчивость финтех, SaaS и мобильных платформ.
+            </p>
+
+            <!-- Dual Actions: Audit & Calculator -->
+            <div class="cta-cluster">
+              <button type="button" class="btn btn-primary" onclick="openDialog('audit')">
+                <span>Получить аудит QA</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="m12 5 7 7-7 7"></path>
+                </svg>
+              </button>
+
+              <button type="button" class="btn btn-outline" onclick="openDialog('calc')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="16" height="20" x="4" y="2" rx="2"></rect>
+                  <line x1="8" x2="16" y1="6" y2="6"></line>
+                  <line x1="16" x2="16" y1="14"></line>
+                  <path d="M16 10h.01"></path>
+                  <path d="M12 10h.01"></path>
+                  <path d="M8 10h.01"></path>
+                  <path d="M12 14h.01"></path>
+                  <path d="M8 14h.01"></path>
+                  <path d="M12 18h.01"></path>
+                  <path d="M8 18h.01"></path>
+                </svg>
+                <span>Рассчитать стоимость</span>
+              </button>
+            </div>
+
+            <!-- Trust Key Metrics -->
+            <div class="metrics-bar">
+              <div>
+                <div class="metric-item-val">48 ч</div>
+                <div class="metric-item-lbl">Старт в спринте</div>
+              </div>
+              <div>
+                <div class="metric-item-val">99.8%</div>
+                <div class="metric-item-lbl">Надёжность релизов</div>
+              </div>
+              <div>
+                <div class="metric-item-val">ISTQB®</div>
+                <div class="metric-item-lbl">Сертифицированы</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="hero-media-wrap">
+            <div class="media-card">
+              
+              <!-- Zero CLS Viewport -->
+              <div class="photo-viewport">
+                <!-- Skeleton Loader with pulse -->
+                <div class="skeleton-overlay" id="photo-skeleton">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+
+                <!-- Specialist photo with direct Yapx link and fallback security -->
+                <img 
+                  id="specialist-img"
+                  class="qa-specialist-img"
+                  src="https://i.yapx.ru/eSZ9E.jpg" 
+                  alt="Инженер по контролю качества ПО за анализом тестового покрытия"
+                  referrerpolicy="no-referrer"
+                  fetchpriority="high"
+                  loading="eager"
+                  onload="onImageLoaded()"
+                  onerror="onImageError(this)"
+                />
+
+                <!-- Top Telemetry Tag -->
+                <div class="hud-tag-top">
+                  <span style="color: var(--accent-emerald);">●</span>
+                  <span>АВТОТЕСТЫ: 4 120 УСПЕШНО</span>
+                </div>
+              </div>
+
+              <!-- Contextual Status Card attached to frame -->
+              <div class="hud-chip-bottom">
+                <div class="hud-icon-emerald">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <div class="hud-info-caption">Статус аудита релиза</div>
+                  <div class="hud-info-val">Готов к продакшену</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- =====================================================================
+         SECTION 2: Interactive Engineering Quality Carousel
+         ===================================================================== -->
+    <section class="section-metrics-carousel" id="quality-dashboards" aria-label="Инженерные дашборды VeriFlow">
+      <div class="container">
+        
+        <!-- Section Header with Navigator -->
+        <div class="carousel-header-wrap">
+          <div class="carousel-title-group">
+            <div class="section-subtitle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              <span>Инженерный арсенал</span>
+            </div>
+            <h2 class="section-title">
+              Прозрачная аналитика качества в <span class="section-title-highlight">реальном времени</span>
+            </h2>
+            <p class="section-lead">
+              Каждый релиз сопровождается точными данными: от покрытия бизнес-сценариев до стресс-тестов на 50 000 RPS и автоматических Quality Gates.
+            </p>
+          </div>
+
+          <div class="carousel-nav-controls">
+            <div class="carousel-page-indicator">
+              <span id="carousel-cur-page">01</span> / <span style="color: var(--color-text-muted);">04</span>
+            </div>
+            <div class="nav-btn-group">
+              <button type="button" class="carousel-btn" id="carousel-prev-btn" aria-label="Предыдущий слайд">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m15 18-6-6 6-6"/>
+                </svg>
+              </button>
+              <button type="button" class="carousel-btn" id="carousel-next-btn" aria-label="Следующий слайд">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carousel Viewport & Slider Track -->
+        <div class="carousel-viewport" id="carousel-viewport">
+          <div class="carousel-track" id="carousel-track">
+            
+            <!-- Card 1: Test Coverage & Automation Pyramid -->
+            <div class="dashboard-card" data-index="0">
+              <div class="card-top-bar">
+                <span class="card-idx-badge">01 / ПИРАМИДА ТЕСТОВ</span>
+                <span class="card-live-pill"><span class="card-live-dot"></span>СИНХРОНИЗАЦИЯ CI/CD</span>
+              </div>
+              <h3 class="card-heading">Покрытие кода и слоев архитектуры</h3>
+              <p class="card-caption">Гармоничная пирамида тестов сокращает цикл регрессионного тестирования с 14 часов до 18 минут.</p>
+              
+              <div class="mockup-surface">
+                <!-- Unit Layer -->
+                <div class="pyramid-layer active" onclick="highlightLayer(this, 'unit')">
+                  <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="layer-title-text">
+                        <span style="color: #60a5fa;">●</span> Модульные и контрактные тесты (Unit)
+                      </span>
+                      <span class="layer-pct">94.8%</span>
+                    </div>
+                    <div class="coverage-meter-bar">
+                      <div class="coverage-meter-fill" style="width: 94.8%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Integration Layer -->
+                <div class="pyramid-layer" onclick="highlightLayer(this, 'int')">
+                  <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="layer-title-text">
+                        <span style="color: #38bdf8;">●</span> Интеграционные тесты API (REST / gRPC)
+                      </span>
+                      <span class="layer-pct">89.2%</span>
+                    </div>
+                    <div class="coverage-meter-bar">
+                      <div class="coverage-meter-fill" style="width: 89.2%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E2E Layer -->
+                <div class="pyramid-layer" onclick="highlightLayer(this, 'e2e')">
+                  <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="layer-title-text">
+                        <span style="color: #2dd4bf;">●</span> Сквозные пользовательские сценарии (E2E)
+                      </span>
+                      <span class="layer-pct">78.5%</span>
+                    </div>
+                    <div class="coverage-meter-bar">
+                      <div class="coverage-meter-fill" style="width: 78.5%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pyramid-quick-meta">
+                  <span class="layer-runtime-badge">Стек: Jest / PyTest • Время прогона: 12 сек</span>
+                  <span style="color: var(--accent-emerald);">Тестов: 4 120</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Defect Heatmap & Bug Tracking -->
+            <div class="dashboard-card" data-index="1">
+              <div class="card-top-bar">
+                <span class="card-idx-badge">02 / ДЕФЕКТ-МАТРИЦА</span>
+                <span class="card-live-pill"><span class="card-live-dot"></span>БЕЗ БЛОКЕРОВ</span>
+              </div>
+              <h3 class="card-heading">Баг-трекинг и анализ дефектов</h3>
+              <p class="card-caption">Исчерпывающие отчеты с HAR-логами, видео шагов и четкой локализацией в исходном коде.</p>
+
+              <div class="mockup-surface">
+                <div class="defect-filter-chips">
+                  <span class="defect-chip active" onclick="filterDefects('all', this)">Все (14)</span>
+                  <span class="defect-chip" onclick="filterDefects('crit', this)">Критические (2)</span>
+                  <span class="defect-chip" onclick="filterDefects('fixed', this)">Устранены (12)</span>
+                </div>
+
+                <div class="bug-log-row bug-entry-1">
+                  <span class="bug-severity-pill blocker">БЛОКЕР</span>
+                  <div style="flex: 1;">
+                    <div class="bug-title-line">Гонка состояний при 3-D Secure верификации</div>
+                    <div class="bug-meta-line">Платежный шлюз • Приложен видеоотчет и сетевые логи</div>
+                  </div>
+                </div>
+
+                <div class="bug-log-row bug-entry-2">
+                  <span class="bug-severity-pill critical">КРИТИЧЕСКИЙ</span>
+                  <div style="flex: 1;">
+                    <div class="bug-title-line">Утечка токена в WebSocket хэндшейке</div>
+                    <div class="bug-meta-line">Шлюз авторизации • Уязвимость устранена (Патч)</div>
+                  </div>
+                </div>
+
+                <div class="pyramid-quick-meta">
+                  <span>Статус: Все дефекты воспроизводимы</span>
+                  <span style="color: #38bdf8;">Среднее время исправления (MTTR): 2.4 ч</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Highload & Performance Stress Simulator -->
+            <div class="dashboard-card" data-index="2">
+              <div class="card-top-bar">
+                <span class="card-idx-badge">03 / НАГРУЗКА И СТРЕСС-ТЕСТЫ</span>
+                <span class="card-live-pill"><span class="card-live-dot"></span>ИНСТРУМЕНТЫ: K6 / JMETER</span>
+              </div>
+              <h3 class="card-heading">Стресс-тестирование и Highload</h3>
+              <p class="card-caption">Интерактивная проверка деградации системы при резких всплесках пользовательского трафика.</p>
+
+              <div class="mockup-surface">
+                <div class="load-slider-head">
+                  <span style="color: var(--color-text-secondary); font-size: 0.775rem;">Нагрузка:</span>
+                  <span class="load-rps-indicator" style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">15 000 запр/сек (RPS)</span>
+                </div>
+
+                <input type="range" class="calc-range-input stress-sim-range" min="5" max="50" value="15" oninput="updateStressSimulation(this)">
+
+                <!-- Interactive Load Graph Bars -->
+                <div class="load-graph-preview load-graph-bars">
+                  <div class="load-bar" style="height: 35%;"></div>
+                  <div class="load-bar" style="height: 45%;"></div>
+                  <div class="load-bar" style="height: 40%;"></div>
+                  <div class="load-bar" style="height: 60%;"></div>
+                  <div class="load-bar" style="height: 55%;"></div>
+                  <div class="load-bar" style="height: 50%;"></div>
+                  <div class="load-bar" style="height: 45%;"></div>
+                  <div class="load-bar" style="height: 52%;"></div>
+                </div>
+
+                <div class="load-stat-readout">
+                  <div class="load-stat-item">
+                    <div class="load-stat-val load-latency-val">42 мс</div>
+                    <div class="load-stat-lbl">Задержка отклика (P99)</div>
+                  </div>
+                  <div class="load-stat-item">
+                    <div class="load-stat-val load-error-val" style="color: var(--accent-emerald);">0.00%</div>
+                    <div class="load-stat-lbl">Доля отказов / Ошибок</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: CI/CD Quality Gate Pipeline -->
+            <div class="dashboard-card" data-index="3">
+              <div class="card-top-bar">
+                <span class="card-idx-badge">04 / КОНТРОЛЬНЫЙ ШЛЮЗ (QUALITY GATE)</span>
+                <span class="card-live-pill"><span class="card-live-dot"></span>ДОПУЩЕН К РЕЛИЗУ</span>
+              </div>
+              <h3 class="card-heading">Автоматический допуск к продакшену</h3>
+              <p class="card-caption">Релиз блокируется автоматически, если нарушен хотя бы один критерий надежности.</p>
+
+              <div class="mockup-surface">
+                <div class="pipeline-steps">
+                  <div class="pipeline-step-item passed">
+                    <span>1. Статический анализ кода и безопасности</span>
+                    <span class="pipeline-tag-status">ВЫСШИЙ БАЛЛ (A)</span>
+                  </div>
+                  <div class="pipeline-step-item passed">
+                    <span>2. Автотесты регресса (4 120 кейсов)</span>
+                    <span class="pipeline-tag-status">100% УСПЕШНО</span>
+                  </div>
+                  <div class="pipeline-step-item passed pipeline-sec-item">
+                    <span>3. Проверка API на уязвимости (OWASP)</span>
+                    <span class="pipeline-tag-status">БЕЗ УЯЗВИМОСТЕЙ</span>
+                  </div>
+                </div>
+
+                <button type="button" class="gate-action-btn run-pipeline-btn" onclick="simulateGateCheck(this)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Перезапустить валидацию допуска</span>
+                </button>
+
+                <div class="pyramid-quick-meta">
+                  <span class="gate-result-status">Итог: Релиз v2.8.4 одобрен</span>
+                  <span style="color: var(--accent-emerald);">Автодопуск: Вкл</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Progress Indicator Bar -->
+        <div class="carousel-progress-track">
+          <div class="carousel-progress-thumb" id="carousel-progress-thumb"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: Team Video Backstage
+         ===================================================================== -->
+    <section class="section-team-video" id="video-section" aria-label="Бэкстейдж работы команды">
+      <div class="container">
+        
+        <div class="video-header-wrap">
+          <div class="section-subtitle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Смотрите, как мы работаем</span>
+          </div>
+          <h2 class="section-title">
+            Короткий бэкстейдж, <span class="section-title-highlight">ловим баги без устали!</span>
+          </h2>
+        </div>
+
+        <div class="video-player-card">
+          <div class="video-ratio-wrapper">
+            <iframe src="https://kinescope.io/embed/oJi8bXNUE69megj2eHK7Gf" allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: FAQ (Frequently Asked Questions)
+         ===================================================================== -->
+    <section class="section-faq" id="faq-section" aria-label="Часто задаваемые вопросы">
+      <div class="container">
+        
+        <div class="faq-header-wrap">
+          <div class="section-subtitle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <span>Прозрачность процессов</span>
+          </div>
+          <h2 class="section-title">
+            Отвечаем на <span class="section-title-highlight">частые вопросы</span>
+          </h2>
+          <p class="section-lead" style="max-width: 680px; margin: 0.75rem auto 0;">
+            Всё, что нужно знать перед тем, как мы приступим к разбору вашей архитектуры.
+          </p>
+        </div>
+
+        <div class="faq-accordion-list">
+          
+          <!-- Item 1 -->
+          <div class="faq-item">
+            <button class="faq-question-btn" aria-expanded="false" onclick="toggleFaqItem(this)">
+              <span>Как быстро вы можете подключиться к проекту?</span>
+              <svg class="faq-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer-grid-wrapper">
+              <div class="faq-answer-overflow-box">
+                <div class="faq-answer-content">
+                  В среднем онбординг занимает <strong>48 часов</strong> с момента подписания договора. Мы выделяем команду, настраиваем VPN/доступы и сразу погружаемся в вашу архитектуру и беклог.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="faq-item">
+            <button class="faq-question-btn" aria-expanded="false" onclick="toggleFaqItem(this)">
+              <span>Как вы обеспечиваете безопасность нашего кода и данных?</span>
+              <svg class="faq-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer-grid-wrapper">
+              <div class="faq-answer-overflow-box">
+                <div class="faq-answer-content">
+                  Работа строго по <strong>NDA</strong>. Используем изолированные тестовые среды, не выкачиваем чувствительные данные пользователей на свои локальные машины и применяем стандарты <strong>OWASP</strong> для проверки уязвимостей.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="faq-item">
+            <button class="faq-question-btn" aria-expanded="false" onclick="toggleFaqItem(this)">
+              <span>Вы используете свой стек или можете писать тесты на нашем?</span>
+              <svg class="faq-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer-grid-wrapper">
+              <div class="faq-answer-overflow-box">
+                <div class="faq-answer-content">
+                  Мы адаптивны. Если у вас уже есть база на Java/Selenide или Python/PyTest — мы продолжим её развивать. Если автоматизации еще нет, мы предложим оптимальный стек под вашу архитектуру (например, Playwright/TypeScript для веба).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="faq-item">
+            <button class="faq-question-btn" aria-expanded="false" onclick="toggleFaqItem(this)">
+              <span>Что произойдет, если критический баг всё же уйдет в продакшен?</span>
+              <svg class="faq-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer-grid-wrapper">
+              <div class="faq-answer-overflow-box">
+                <div class="faq-answer-content">
+                  Мы выстраиваем процесс <strong>Quality Gates</strong>, при котором релиз блокируется автоматически при наличии дефектов. Если инцидент всё же случился — мы бесплатно локализуем проблему, предоставляем <em>root-cause analysis</em> (почему это произошло) и пишем автотест, чтобы ситуация не повторилась.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="faq-item">
+            <button class="faq-question-btn" aria-expanded="false" onclick="toggleFaqItem(this)">
+              <span>Как рассчитывается стоимость услуг?</span>
+              <svg class="faq-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer-grid-wrapper">
+              <div class="faq-answer-overflow-box">
+                <div class="faq-answer-content">
+                  Бюджет зависит от длительности спринтов и необходимого покрытия (Manual, Auto, Security). Вы можете воспользоваться калькулятором на сайте или запросить бесплатный экспресс-аудит, чтобы мы оценили объем.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 5: FINAL CTA
+         ===================================================================== -->
+    <section class="section-final-cta" aria-label="Прямая связь">
+      <div class="container">
+        <div class="cta-banner-card">
+          <div class="cta-banner-content">
+            <div class="section-subtitle" style="justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Прямая связь</span>
+            </div>
+            
+            <h2 class="section-title" style="text-align: center;">Остались вопросы?</h2>
+            
+            <p class="section-lead" style="text-align: center; max-width: 600px; margin: 1.25rem auto 2.25rem;">
+              Свяжитесь с нами напрямую. Наш QA Lead подключится к диалогу, детально разберет ваш кейс и развеет любые сомнения.
+            </p>
+            
+            <div class="cta-banner-actions">
+              <!-- Telegram Link -->
+              <a href="https://t.me/CZ_PERM" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m22 2-7 20-4-9-9-4Z"></path>
+                  <path d="M22 2 11 13"></path>
+                </svg>
+                <span>Написать в Telegram</span>
+              </a>
+              
+              <!-- Opens Modal Form -->
+              <button type="button" class="btn btn-outline" onclick="openDialog('audit')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span>Оставить заявку</span>
+              </button>
+            </div>
+            
+            <p class="cta-micro-trust">
+              Без спама и навязчивых сейлзов. Отвечаем за 15 минут в рабочее время.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container">
+        &copy; 2026 VeriFlow Engineering Services. Стандарты ISO 29119 & ISTQB. Соглашение о неразглашении (NDA).
+      </div>
+    </footer>
+
+  </div>
+
+  <div id="interactive-dialog" class="dialog-backdrop" onclick="handleBackdropClick(event)">
+    <div class="dialog-panel" role="dialog" aria-modal="true">
+      
+      <div class="dialog-header">
+        <div>
+          <h2 id="dlg-title" class="dialog-title">Калькулятор стоимости тестирования</h2>
+          <p id="dlg-desc" class="dialog-subtext">Оцените параметры проекта и получите детальную смету на инженеров</p>
+        </div>
+        <button type="button" class="dialog-close-btn" onclick="closeDialog()" aria-label="Закрыть окно">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        
+        <!-- Calculator Interactive Section -->
+        <div id="calc-section" class="calc-box">
+          <div>
+            <div class="slider-row">
+              <span class="form-label">Длительность спринта / проекта:</span>
+              <span id="duration-val" class="slider-val-badge">2 недели</span>
+            </div>
+            <input type="range" id="calc-duration" class="calc-range-input" min="1" max="12" value="2" oninput="updateCalculation()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Тип архитектуры продукта</label>
+            <select id="calc-architecture" class="form-select" onchange="updateCalculation()">
+              <option value="1">Веб-приложение / SaaS сервис</option>
+              <option value="1.25">Мобильное приложение (iOS + Android)</option>
+              <option value="1.4">Финтех / Высоконагруженная система (Highload)</option>
+              <option value="0.9">REST/gRPC API & Микросервисы</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Необходимые компетенции:</label>
+            <div class="checkbox-chip-grid">
+              <label class="checkbox-chip">
+                <input type="checkbox" id="check-manual" checked onchange="updateCalculation()">
+                <span>Manual QA (Ручное)</span>
+              </label>
+              <label class="checkbox-chip">
+                <input type="checkbox" id="check-auto" checked onchange="updateCalculation()">
+                <span>Test Automation (CI/CD)</span>
+              </label>
+              <label class="checkbox-chip">
+                <input type="checkbox" id="check-perf" onchange="updateCalculation()">
+                <span>Нагрузочное тестирование</span>
+              </label>
+              <label class="checkbox-chip">
+                <input type="checkbox" id="check-sec" onchange="updateCalculation()">
+                <span>Security / OWASP аудит</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="calc-result-summary">
+            <div>
+              <div class="calc-price-lbl">Ориентировочная оценка:</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">Включает QA Lead и тест-план</div>
+            </div>
+            <div id="calc-final-price" class="calc-price-val">120 000 ₽</div>
+          </div>
+        </div>
+
+        <!-- Contact Submission Form -->
+        <form id="submission-form" onsubmit="handleFormSubmit(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="user-name">Контактное лицо</label>
+            <input required type="text" id="user-name" class="form-input" placeholder="Иван, Техлид / PM">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="user-contact">Telegram или Email</label>
+            <input required type="text" id="user-contact" class="form-input" placeholder="@lead_qa или tech@company.ru">
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+            <span>Забронировать экспертов</span>
+          </button>
+        </form>
+
+        <div id="toast-notify" class="toast-msg">
+          ✓ Заявка зарегистрирована! Эксперт свяжется с вами в течение 2 часов с готовым планом аудита.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       1. LIVE INTERACTIVE BACKGROUND: Tech Node Mesh & Electric Pulse
+       ===================================================================== */
+    const canvas = document.getElementById('tech-bg-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width = 0;
+    let height = 0;
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 140 };
+
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      const density = Math.floor((width * height) / 16000);
+      const count = Math.min(Math.max(density, 35), 90);
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          radius: Math.random() * 1.6 + 0.8,
+          alpha: Math.random() * 0.4 + 0.2
+        });
+      }
+    }
+
+    function animateMesh() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+
+        p1.x += p1.vx;
+        p1.y += p1.vy;
+
+        if (p1.x <= 0) { p1.x = 0; p1.vx *= -1; }
+        if (p1.x >= width) { p1.x = width; p1.vx *= -1; }
+        if (p1.y <= 0) { p1.y = 0; p1.vy *= -1; }
+        if (p1.y >= height) { p1.y = height; p1.vy *= -1; }
+
+        if (mouse.x !== null) {
+          const dx = mouse.x - p1.x;
+          const dy = mouse.y - p1.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < mouse.radius) {
+            const force = (mouse.radius - dist) / mouse.radius;
+            p1.x -= (dx / dist) * force * 1.5;
+            p1.y -= (dy / dist) * force * 1.5;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56, 189, 248, ${p1.alpha})`;
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+          const maxDist = 120;
+
+          if (dist < maxDist) {
+            const lineAlpha = (1 - dist / maxDist) * 0.16;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animateMesh);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      animateMesh();
+      initTypewriter();
+    });
+
+    /* =====================================================================
+       1.1 TYPEWRITER EFFECT FOR BRAND LOGO
+       ===================================================================== */
+    function initTypewriter() {
+      const container = document.getElementById('brand-typewriter');
+      if (!container) return;
+
+      const brandPrefix = "Veri";
+      const brandSuffix = "Flow";
+      const fullText = brandPrefix + brandSuffix;
+      let charIndex = 0;
+      let isDeleting = false;
+
+      function render(charsTyped) {
+        let html = '';
+        if (charsTyped <= brandPrefix.length) {
+          html = `<span>${brandPrefix.slice(0, charsTyped)}</span>`;
+        } else {
+          const suffixPart = brandSuffix.slice(0, charsTyped - brandPrefix.length);
+          html = `<span>${brandPrefix}</span><span style="color: var(--accent-cyan);">${suffixPart}</span>`;
+        }
+        container.innerHTML = html;
+      }
+
+      function step() {
+        if (!isDeleting) {
+          charIndex++;
+          render(charIndex);
+
+          if (charIndex === fullText.length) {
+            setTimeout(() => {
+              isDeleting = true;
+              step();
+            }, 5000);
+            return;
+          }
+          setTimeout(step, 140);
+        } else {
+          charIndex--;
+          render(charIndex);
+
+          if (charIndex === 0) {
+            isDeleting = false;
+            setTimeout(step, 600);
+            return;
+          }
+          setTimeout(step, 70);
+        }
+      }
+
+      step();
+    }
+
+    /* =====================================================================
+       2. ZERO CLS IMAGE HANDLING & FALLBACKS
+       ===================================================================== */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkImageState);
+    } else {
+      checkImageState();
+    }
+
+    function checkImageState() {
+      const img = document.getElementById('specialist-img');
+      if (img && img.complete && img.naturalWidth !== 0) {
+        onImageLoaded();
+      }
+    }
+
+    /* =====================================================================
+       3. INTERACTIVE CALCULATOR ENGINE
+       ===================================================================== */
+    function updateCalculation() {
+      const durationWeeks = parseInt(document.getElementById('calc-duration').value, 10);
+      const architectureFactor = parseFloat(document.getElementById('calc-architecture').value);
+      
+      const hasManual = document.getElementById('check-manual').checked;
+      const hasAuto = document.getElementById('check-auto').checked;
+      const hasPerf = document.getElementById('check-perf').checked;
+      const hasSec = document.getElementById('check-sec').checked;
+
+      const durationLbl = document.getElementById('duration-val');
+      let weekText = 'недели';
+      if (durationWeeks === 1) weekText = 'неделя';
+      else if (durationWeeks >= 5) weekText = 'недель';
+      durationLbl.textContent = `${durationWeeks} ${weekText}`;
+
+      let weeklyBase = 0;
+      if (hasManual) weeklyBase += 45000;
+      if (hasAuto) weeklyBase += 60000;
+      if (hasPerf) weeklyBase += 35000;
+      if (hasSec) weeklyBase += 40000;
+
+      if (weeklyBase === 0) weeklyBase = 25000;
+
+      const total = Math.round(weeklyBase * durationWeeks * architectureFactor);
+      const formatted = new Intl.NumberFormat('ru-RU').format(total) + ' ₽';
+      document.getElementById('calc-final-price').textContent = formatted;
+    }
+
+    /* =====================================================================
+       4. MODAL DIALOG STATE & BEHAVIOR
+       ===================================================================== */
+    const dialog = document.getElementById('interactive-dialog');
+    const dlgTitle = document.getElementById('dlg-title');
+    const dlgDesc = document.getElementById('dlg-desc');
+    const calcSection = document.getElementById('calc-section');
+    const toastNotify = document.getElementById('toast-notify');
+    const submissionForm = document.getElementById('submission-form');
+
+    function openDialog(mode) {
+      toastNotify.style.display = 'none';
+      submissionForm.reset();
+
+      if (mode === 'calc') {
+        dlgTitle.textContent = 'Калькулятор стоимости тестирования';
+        dlgDesc.textContent = 'Настройте длительность и состав команды для мгновенного расчета бюджета';
+        calcSection.style.display = 'flex';
+        updateCalculation();
+      } else {
+        dlgTitle.textContent = 'Экспресс-аудит качества ПО';
+        dlgDesc.textContent = 'Проанализируем текущие баг-трекеры, покрытие тестами и предоставим отчёт с рисками';
+        calcSection.style.display = 'none';
+      }
+
+      dialog.classList.add('active');
+      document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeDialog() {
+      dialog.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target === dialog) {
+        closeDialog();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dialog.classList.contains('active')) {
+        closeDialog();
+      }
+    });
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      toastNotify.style.display = 'block';
+      setTimeout(() => {
+        closeDialog();
+      }, 2400);
+    }
+
+    /* =====================================================================
+       5. INFINITE SEAMLESS CAROUSEL ENGINE
+       ===================================================================== */
+    const rawTrack = document.getElementById('carousel-track');
+    const viewport = document.getElementById('carousel-viewport');
+    const prevBtn = document.getElementById('carousel-prev-btn');
+    const nextBtn = document.getElementById('carousel-next-btn');
+    const pageIndicator = document.getElementById('carousel-cur-page');
+    const progressThumb = document.getElementById('carousel-progress-thumb');
+
+    let originalCards = [];
+    let clonesCount = 0;
+    const totalOriginalSlides = 4;
+    let currentIndex = 0;
+    let isTransitioning = false;
+    let autoScrollTimer = null;
+    
+    const AUTO_SCROLL_DELAY = 5500; 
+    const GLIDE_DURATION = 2.4; 
+
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragCurrentDelta = 0;
+    let startTranslate = 0;
+
+    function getCardStride() {
+      const cards = rawTrack.querySelectorAll('.dashboard-card');
+      if (cards.length < 2) return 360;
+      return Math.round(cards[1].offsetLeft - cards[0].offsetLeft);
+    }
+
+    function initClonedCarousel() {
+      originalCards = Array.from(rawTrack.children);
+      clonesCount = originalCards.length;
+
+      const beforeClones = originalCards.map(c => {
+        const clone = c.cloneNode(true);
+        clone.setAttribute('data-clone', 'true');
+        return clone;
+      });
+
+      const afterClones = originalCards.map(c => {
+        const clone = c.cloneNode(true);
+        clone.setAttribute('data-clone', 'true');
+        return clone;
+      });
+
+      beforeClones.reverse().forEach(clone => {
+        rawTrack.insertBefore(clone, rawTrack.firstElementChild);
+      });
+      afterClones.forEach(clone => {
+        rawTrack.appendChild(clone);
+      });
+
+      currentIndex = clonesCount;
+      jumpToCard(currentIndex);
+      updateIndicators();
+    }
+
+    function jumpToCard(index) {
+      rawTrack.style.transition = 'none';
+      const stride = getCardStride();
+      const offset = -(index * stride);
+      rawTrack.style.transform = `translate3d(${offset}px, 0, 0)`;
+      rawTrack.offsetHeight; 
+    }
+
+    function smoothSlideTo(index) {
+      isTransitioning = true;
+      currentIndex = index;
+
+      rawTrack.style.transition = `transform ${GLIDE_DURATION}s cubic-bezier(0.16, 1, 0.3, 1)`;
+      const stride = getCardStride();
+      const offset = -(currentIndex * stride);
+      rawTrack.style.transform = `translate3d(${offset}px, 0, 0)`;
+      updateIndicators();
+    }
+
+    rawTrack.addEventListener('transitionend', (e) => {
+      if (e.target !== rawTrack) return;
+      isTransitioning = false;
+
+      if (currentIndex >= clonesCount * 2) {
+        currentIndex = currentIndex - clonesCount;
+        jumpToCard(currentIndex);
+      } 
+      else if (currentIndex < clonesCount) {
+        currentIndex = currentIndex + clonesCount;
+        jumpToCard(currentIndex);
+      }
+      updateIndicators();
+    });
+
+    function getNormalizedIndex() {
+      let norm = (currentIndex - clonesCount) % totalOriginalSlides;
+      if (norm < 0) norm += totalOriginalSlides;
+      return norm;
+    }
+
+    function updateIndicators() {
+      const activeIdx = getNormalizedIndex();
+      if (pageIndicator) {
+        pageIndicator.textContent = `0${activeIdx + 1}`;
+      }
+      if (progressThumb) {
+        const pct = ((activeIdx + 1) / totalOriginalSlides) * 100;
+        progressThumb.style.width = `${pct}%`;
+      }
+    }
+
+    function nextCarouselSlide(manual = false) {
+      if (isTransitioning) return;
+      smoothSlideTo(currentIndex + 1);
+      if (manual) restartAutoScroll();
+    }
+
+    function prevCarouselSlide(manual = false) {
+      if (isTransitioning) return;
+      smoothSlideTo(currentIndex - 1);
+      if (manual) restartAutoScroll();
+    }
+
+    function startAutoScroll() {
+      stopAutoScroll();
+      autoScrollTimer = setInterval(() => {
+        nextCarouselSlide(false);
+      }, AUTO_SCROLL_DELAY);
+    }
+
+    function stopAutoScroll() {
+      if (autoScrollTimer) {
+        clearInterval(autoScrollTimer);
+        autoScrollTimer = null;
+      }
+    }
+
+    function restartAutoScroll() {
+      stopAutoScroll();
+      startAutoScroll();
+    }
+
+    function onPointerDown(e) {
+      if (isTransitioning) return;
+      
+      if (e.target.closest('input, button, select, .defect-chip, .pyramid-layer, a')) {
+        return;
+      }
+
+      stopAutoScroll();
+      isDragging = true;
+      dragStartX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      dragCurrentDelta = 0;
+      
+      const stride = getCardStride();
+      startTranslate = -(currentIndex * stride);
+      rawTrack.style.transition = 'none';
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      dragCurrentDelta = currentX - dragStartX;
+      const targetTranslate = startTranslate + dragCurrentDelta;
+      rawTrack.style.transform = `translate3d(${targetTranslate}px, 0, 0)`;
+    }
+
+    function onPointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      if (dragCurrentDelta === 0) {
+        startAutoScroll();
+        return;
+      }
+
+      const stride = getCardStride();
+      const threshold = stride * 0.15;
+
+      if (dragCurrentDelta < -threshold) {
+        smoothSlideTo(currentIndex + 1);
+      } else if (dragCurrentDelta > threshold) {
+        smoothSlideTo(currentIndex - 1);
+      } else {
+        smoothSlideTo(currentIndex);
+      }
+      startAutoScroll();
+    }
+
+    if (viewport) {
+      viewport.addEventListener('mousedown', onPointerDown);
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+      viewport.addEventListener('mouseleave', () => {
+        if (isDragging) onPointerUp();
+      });
+
+      viewport.addEventListener('touchstart', onPointerDown, { passive: true });
+      viewport.addEventListener('touchmove', onPointerMove, { passive: true });
+      viewport.addEventListener('touchend', onPointerUp);
+
+      viewport.addEventListener('mouseenter', stopAutoScroll);
+      viewport.addEventListener('mouseleave', () => {
+        if (!isDragging) startAutoScroll();
+      });
+    }
+
+    if (prevBtn) prevBtn.onclick = () => prevCarouselSlide(true);
+    if (nextBtn) nextBtn.onclick = () => nextCarouselSlide(true);
+
+    window.addEventListener('resize', () => {
+      isTransitioning = false;
+      jumpToCard(currentIndex);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextCarouselSlide(true);
+      if (e.key === 'ArrowLeft') prevCarouselSlide(true);
+    });
+
+    /* =====================================================================
+       6. CAROUSEL MICRO-INTERACTIONS
+       ===================================================================== */
+    function highlightLayer(element, type) {
+      const card = element.closest('.dashboard-card');
+      if (!card) return;
+
+      const layers = card.querySelectorAll('.pyramid-layer');
+      layers.forEach(l => l.classList.remove('active'));
+      element.classList.add('active');
+
+      const meta = card.querySelector('.layer-runtime-badge');
+      if (!meta) return;
+
+      if (type === 'unit') meta.textContent = 'Стек: Jest / PyTest • Время прогона: 12 сек';
+      if (type === 'int') meta.textContent = 'Стек: REST Assured • Изоляция в Docker контейнерах';
+      if (type === 'e2e') meta.textContent = 'Стек: Playwright • Видеозапись шагов и журнал трассировки';
+    }
+
+    function filterDefects(type, chip) {
+      const card = chip.closest('.dashboard-card');
+      if (!card) return;
+
+      card.querySelectorAll('.defect-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      const row1 = card.querySelector('.bug-entry-1');
+      const row2 = card.querySelector('.bug-entry-2');
+
+      if (type === 'crit') {
+        if (row1) row1.style.display = 'flex';
+        if (row2) row2.style.display = 'none';
+      } else if (type === 'fixed') {
+        if (row1) row1.style.display = 'none';
+        if (row2) row2.style.display = 'flex';
+      } else {
+        if (row1) row1.style.display = 'flex';
+        if (row2) row2.style.display = 'flex';
+      }
+    }
+
+    function updateStressSimulation(input) {
+      const card = input.closest('.dashboard-card');
+      if (!card) return;
+
+      const val = parseInt(input.value, 10);
+      const rpsIndicator = card.querySelector('.load-rps-indicator');
+      const latencyVal = card.querySelector('.load-latency-val');
+      const errorVal = card.querySelector('.load-error-val');
+      const bars = card.querySelectorAll('.load-bar');
+
+      const rpsNumber = val * 1000;
+      if (rpsIndicator) {
+        rpsIndicator.textContent = `${new Intl.NumberFormat('ru-RU').format(rpsNumber)} запр/сек (RPS)`;
+      }
+
+      const latency = Math.round(24 + (val * val) * 0.045);
+      if (latencyVal) {
+        latencyVal.textContent = `${latency} мс`;
+      }
+
+      let error = "0.00%";
+      let isWarning = false;
+      if (val > 38) {
+        error = `${((val - 38) * 0.12).toFixed(2)}%`;
+        isWarning = true;
+        if (errorVal) errorVal.style.color = '#ef4444';
+      } else {
+        if (errorVal) errorVal.style.color = 'var(--accent-emerald)';
+      }
+      if (errorVal) {
+        errorVal.textContent = error;
+      }
+
+      bars.forEach((bar, idx) => {
+        const jitter = Math.sin(idx + val) * 12;
+        const heightPct = Math.min(95, Math.max(15, (val * 1.8) + jitter));
+        bar.style.height = `${heightPct}%`;
+        if (isWarning && idx > 4) {
+          bar.classList.add('warning');
+        } else {
+          bar.classList.remove('warning');
+        }
+      });
+    }
+
+    function simulateGateCheck(btn) {
+      const card = btn.closest('.dashboard-card');
+      if (!card) return;
+
+      const statusLabel = card.querySelector('.gate-result-status');
+      
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      if (statusLabel) {
+        statusLabel.textContent = 'Выполняется аудит пайплайна...';
+        statusLabel.style.color = '#38bdf8';
+      }
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        if (statusLabel) {
+          statusLabel.textContent = 'Итог: Все 4 120 тестов успешно пройдены ✓';
+          statusLabel.style.color = 'var(--accent-emerald)';
+        }
+      }, 1200);
+    }
+
+    /* =====================================================================
+       7. FAQ ACCORDION LOGIC
+       ===================================================================== */
+    function toggleFaqItem(btn) {
+      const currentItem = btn.closest('.faq-item');
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+
+      const allItems = document.querySelectorAll('.faq-item');
+      allItems.forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.faq-question-btn').setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isExpanded) {
+        currentItem.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initClonedCarousel();
+      startAutoScroll();
+    });
+  </script>
+</body>
+</html>
